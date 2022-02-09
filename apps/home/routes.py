@@ -9,14 +9,14 @@ from flask_login import login_required
 from jinja2 import TemplateNotFound
 
 
-@blueprint.route('/admin//index')
+@blueprint.route('/index')
 @login_required
 def index():
 
     return render_template('home/dashboard.html', segment='index')
 
 
-@blueprint.route('/admin//<template>')
+@blueprint.route('/<template>')
 @login_required
 def route_template(template):
 
