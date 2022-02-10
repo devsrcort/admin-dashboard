@@ -26,7 +26,7 @@ def index():
 
 @blueprint.route('/dashboard')
 @login_required
-def route_dashboard():
+def route_dashboard(pagenum):
     users = load_client(1);
     return render_template('home/dashboard.html', segment='index', client=users)
 
