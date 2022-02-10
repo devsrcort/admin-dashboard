@@ -27,76 +27,19 @@
                         </thead>
                         <tbody>
                             <!-- Item -->
+                            {% for n in client %}
                             <tr>
-                                <td><a href="#" class="text-primary fw-bold">1</a> </td>
-                                <td class="fw-bold d-flex align-items-center">
-                                    홍길동
-                                </td>
-                                <td>
-                                    01012341234
-                                </td>
-                                <td>
-                                    test@test.com
-                                </td>
-                                <td>
-                                    0x22987407FD1fC5A971e3FDA3B3e74C88666cDa91
-                                </td>
-                                <td>
-                                    100
-                                </td>
-                                <td>
-                                    50%
-                                </td>
+                                <td><a href="#" class="text-primary fw-bold">{{n.id}}</a> </td>
+                                <td class="fw-bold d-flex align-items-center">{{n.name}}</td>
+                                <td>{{n.phonenumer}}</td>
+                                <td>{{n.email}}</td>
+                                <td>{{n.wallet_address}}</td>
+                                <td>{{n.balance}}</td>
+                                <td>{{n.withdraw_limit}}</td>
                             </tr>
+                            {% endfor%}
                             <!-- End of Item -->
-      
-                            <!-- Item -->
-                            <tr>
-                                <td><a href="#" class="text-primary fw-bold">2</a> </td>
-                                <td class="fw-bold d-flex align-items-center">
-                                    홍길자
-                                </td>
-                                <td>
-                                    01043241532
-                                </td>
-                                <td>
-                                    test@test.com
-                                </td>
-                                <td>
-                                    0x22987407FD1fC5A971e3FDA3B3e74C88666cDa91
-                                </td>
-                                <td>
-                                    10000000000
-                                </td>
-                                <td>
-                                    25%
-                                </td>
-                            </tr>
-                            <!-- End of Item -->
-      
-                            <!-- Item -->
-                            <tr>
-                                <td><a href="#" class="text-primary fw-bold">3</a> </td>
-                                <td class="fw-bold d-flex align-items-center">
-                                    고길동
-                                </td>
-                                <td>
-                                    01048214512
-                                </td>
-                                <td>
-                                    test@test.com
-                                </td>
-                                <td>
-                                    0x22987407FD1fC5A971e3FDA3B3e74C88666cDa91
-                                </td>
-                                <td>
-                                    10000000
-                                </td>
-                                <td>
-                                    10%
-                                </td>
-                            </tr>
-                            <!-- End of Item -->
+
                         </tbody>
                     </table>
                 </div>
