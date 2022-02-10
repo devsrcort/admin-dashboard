@@ -22,12 +22,12 @@ class Client(object):
 @blueprint.route('/index')
 @login_required
 def index():
-    return route_dashboard(1)
+    return route_dashboard()
 
 @blueprint.route('/dashboard')
 @login_required
-def route_dashboard(pagenum):
-    users = load_client(1);
+def route_dashboard():
+    users = load_client();
     return render_template('home/dashboard.html', segment='index', client=users)
 
 @login_required
@@ -91,8 +91,8 @@ def get_segment(request):
     except:
         return None
 
-def load_client(pagenum):
-    res = requests.get('http://srt-wallet.io/users/getuser?page=%d' % pagenum)
+def load_client():
+    res = requests.get('http://srt-wallet.io/users/getuser?page=%d' % 1)
 
     users = [];
 
