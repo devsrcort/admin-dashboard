@@ -1,0 +1,62 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Token Transfer {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="row">
+  <div class="card border-0 shadow components-section">
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="mb-4">
+          <label for="tokenValidate">토큰 배분 지갑 개인키</label>
+          <input
+            type="text"
+            class="form-control"
+            id="tokenValidate"
+            required
+          />
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="mb-3">
+          <label for="disabledTextInput">대상 지갑 주소</label>
+          <input
+            type="text"
+            id="disabledTextInput"
+            class="form-control"
+            placeholder={{addr}}
+            disabled
+          />
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="mb-4">
+          <label for="amountValidate">수량</label>
+          <input
+            type="text"
+            class="form-control"
+            id="amountValidate"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="mb-4">
+            <button class="btn btn-primary" type="button">보내기</button>
+        </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+{% endblock javascripts %}

@@ -22,20 +22,22 @@
                                 <th class="border-0">Email</th>
                                 <th class="border-0">Wallet</th>
                                 <th class="border-0">Balance</th>
-                                <th class="border-0 rounded-end">Limitation</th>
+                                <th class="border-0">Limitation</th>
+                                <th class="border-0 rounded-end">Send Token</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- Item -->
                             {% for n in client %}
                             <tr>
-                                <td><a href="#" class="text-primary fw-bold">{{n.id}}</a> </td>
-                                <td class="fw-bold d-flex align-items-center">{{n.name}}</td>
+                                <td>{{n.id}}</a> </td>
+                                <td>{{n.name}}</td>
                                 <td>{{n.phonenumer}}</td>
                                 <td>{{n.email}}</td>
                                 <td>{{n.wallet_address}}</td>
                                 <td>{{n.balance}}</td>
                                 <td>{{n.withdraw_limit}}</td>
+                                <td><button class="btn btn-sm btn-primary" type="button" onclick="showTokenTransferPopup('{{n.wallet_address}}')">Send</button></td>
                             </tr>
                             {% endfor%}
                             <!-- End of Item -->
@@ -51,4 +53,11 @@
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+    function showTokenTransferPopup(wallet){
+        window.open("/popupTokenTransfer?walletAddr=" + wallet,"팝업 테스트","width=500, height=500, top=10, left=10");
+    }
+    
+</script>
+{% endblock javascripts %}
