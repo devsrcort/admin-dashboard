@@ -22,10 +22,10 @@
       </div>
       <div class="row mb-4">
         <div class="mb-3">
-          <label for="disabledTextInput">대상 지갑 주소</label>
+          <label for="targetAddr">대상 지갑 주소</label>
           <input
             type="text"
-            id="disabledTextInput"
+            id="targetAddr"
             class="form-control"
             placeholder={{addr}}
             disabled
@@ -47,7 +47,8 @@
 
       <div class="row mb-4">
         <div class="mb-4">
-            <button class="btn btn-primary" type="button">보내기</button>
+            <button class="btn btn-primary" type="button" 
+            onclick="transferToken(document.getElementById('tokenValidate').value, '{{addr}}', document.getElementById('amountValidate').value)">보내기</button>
         </div>
     </div>
     </div>
@@ -58,5 +59,21 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+<script>
+  function transferToken(fromAddr, toAddr, amount) {
 
+    if (fromAddr === ""){
+      alert('주소를 입력하세요.');      
+      return;
+    }
+
+    if (amount <= 0){
+      alert("올바른 갯수를 입력하세요.");
+      return;
+    }
+
+    axios.post('http://srt-wallet.io/wallet/transfer', {"pk": fromAddr, "toAddr":toAddr,"amount":parseInt(amount)});
+}
+</script>
 {% endblock javascripts %}
