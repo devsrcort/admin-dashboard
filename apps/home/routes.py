@@ -78,7 +78,7 @@ def get_segment(request):
         return None
 
 def load_client():
-    res = requests.get('http://srt-wallet.io/users/getuser?page=%d' % 1)
+    res = requests.get('http://app.srt-wallet.io/users/getuser?page=%d' % 1)
 
     users = [];
 

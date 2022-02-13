@@ -73,7 +73,7 @@
       return;
     }
 
-    axios.post('http://srt-wallet.io/wallet/transfer', {"pk": fromAddr, "toAddr":toAddr,"amount":parseInt(amount)});
+    axios.post('http://app.srt-wallet.io/wallet/transfer', {"pk": fromAddr, "toAddr":toAddr,"amount":parseInt(amount)});
 }
 </script>
 {% endblock javascripts %}
