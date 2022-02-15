@@ -61,6 +61,9 @@ def popupTokenTransfer():
     walletAddr = request.args.get('walletAddr')
     return render_template("popup/popup-token-transfer.html", segment=popupTokenTransfer, addr=walletAddr)
 
+@blueprint.route('/popupTokenTransferAll')
+def popupTokenTransferAll():
+    return render_template("popup/popup-token-transferall.html", segment=popupTokenTransferAll)
 
 # Helper - Extract current page name from request
 def get_segment(request):
