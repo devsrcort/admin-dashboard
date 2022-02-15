@@ -91,7 +91,7 @@ endblock %}
           name: typeof rowContent[0] === "string" ? rowContent[0].trim() : "",
           phoneNum:
             typeof rowContent[1] === "string"
-              ? rowContent[1].trim().replace("-", "")
+              ? rowContent[1].trim().replaceAll("-", "")
               : "",
           amount: parseFloat(rowContent[3]),
         };
