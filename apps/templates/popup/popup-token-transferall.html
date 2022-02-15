@@ -1,0 +1,182 @@
+{% extends "layouts/base-fullscreen.html" %} {% block title %} Token Transfer {%
+endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+<div class="row">
+  <div class="card border-0 shadow components-section">
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="mb-4">
+          <label for="tokenValidate">토큰 배분 지갑 개인키</label>
+          <input type="text" class="form-control" id="tokenValidate" required />
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="mb-3">
+          <label for="formFile" class="form-label">일괄전송목록</label>
+          <input class="form-control" type="file" id="formFile" />
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="my-4">
+          <label for="textarea">Log</label>
+          <textarea
+            class="form-control"
+            placeholder=""
+            id="textarea"
+            rows="10"
+            disabled
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-sm-4 mb-3">
+          <button
+            class="btn btn-primary"
+            type="button"
+            onclick="transferToken(document.getElementById('tokenValidate').value, document.getElementById('formFile'))"
+          >
+            보내기
+          </button>
+        </div>
+        <div class="col-sm-4 mb-3">
+          <button
+            class="btn btn-primary"
+            type="button"
+            onclick="window.close()"
+          >
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+<script>
+  async function transferToken(fromAddr, csvFile) {
+    if (fromAddr === "") {
+      alert("주소를 입력하세요.");
+      return;
+    }
+
+    if (csvFile.value === "") {
+      alert("파일경로를 입력하세요.");
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.addEventListener("loadend", async function () {
+      // reader.result contains the contents of blob as a typed array
+      // we insert content of file in DOM here
+      var lines = reader.result.split("\r");
+      for (var count = 0; count < lines.length; count++) {
+        var rowContent = lines[count].split(",");
+        if (count == 0) {
+          continue;
+        }
+
+        var sendParam = {
+          pk: fromAddr,
+          toAddr: typeof rowContent[2] === "string" ? rowContent[2].trim() : "",
+          name: typeof rowContent[0] === "string" ? rowContent[0].trim() : "",
+          phoneNum:
+            typeof rowContent[1] === "string"
+              ? rowContent[1].trim().replace("-", "")
+              : "",
+          amount: parseFloat(rowContent[3]),
+        };
+
+        if (
+          sendParam["name"] === "" ||
+          sendParam["phoneNum"] === "" ||
+          sendParam["toAddr"] === "" ||
+          sendParam["toAddr"].substring(0, 2) != "0x"
+        ) {
+          textarea.value =
+            textarea.value +
+            "에러 데이터 확인필요:" +
+            sendParam["name"] +
+            ":" +
+            sendParam["phoneNum"] +
+            ":" +
+            sendParam["toAddr"] +
+            ":" +
+            sendParam["amount"] +
+            "\n";
+
+          continue;
+        }
+
+        try {
+          let res = await axios.post(
+            "https://app.srt-wallet.io/wallet/transferAdmin",
+            {
+              pk: sendParam["pk"],
+              toAddr: sendParam["toAddr"],
+              amount: sendParam["amount"],
+              name: sendParam["name"],
+              phoneNum: sendParam["phoneNum"]
+            }
+          );
+
+          if (res.data.status === "Success") {
+            textarea.value =
+              textarea.value +
+              "성공 :" +
+              res.data.data.user.name +
+              ":" +
+              res.data.user.phonenum +
+              ":" +
+              sendParam["toAddr"] +
+              ":" +
+              sendParam["amount"] +
+              "\n";
+          } else {
+            textarea.value =
+              textarea.value +
+              res.data.status +
+              ":" +
+              sendParam["name"] +
+              ":" +
+              sendParam["phoneNum"] +
+              ":" +
+              sendParam["toAddr"] +
+              ":" +
+              sendParam["amount"] +
+              "\n";
+          }
+        } catch (error) {
+
+          console.log(error);
+          textarea.value =
+            textarea.value +
+            "실패:" +
+            sendParam["name"] +
+            ":" +
+            sendParam["phoneNum"] +
+            ":" +
+            sendParam["toAddr"] +
+            ":" +
+            sendParam["amount"] +
+            error
+            "\n";
+
+            break;
+        }
+      }
+    });
+
+    reader.readAsText(csvFile.files[0]);
+  }
+</script>
+{% endblock javascripts %}
