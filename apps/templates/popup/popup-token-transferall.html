@@ -129,13 +129,13 @@ endblock %}
             }
           );
 
-          if (res.data.status === "Success") {
+          if (res.data['status'] === "Success") {
             textarea.value =
               textarea.value +
               "성공 :" +
-              res.data.data.user.name +
+              res.data.data.['user']['name'] +
               ":" +
-              res.data.user.phonenum +
+              res.data.data.['user']['phoneNum'] +
               ":" +
               sendParam["toAddr"] +
               ":" +
@@ -144,7 +144,7 @@ endblock %}
           } else {
             textarea.value =
               textarea.value +
-              res.data.status +
+              res.data['status'] +
               ":" +
               sendParam["name"] +
               ":" +
