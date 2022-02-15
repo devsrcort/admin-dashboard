@@ -81,7 +81,7 @@ endblock %}
       var lines = reader.result.split("\r");
       for (var count = 0; count < lines.length; count++) {
         var rowContent = lines[count].split(",");
-        if (count == 0) {
+        if (count == 0 || rowContent.length > 4) {
           continue;
         }
 
