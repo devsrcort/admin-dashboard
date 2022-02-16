@@ -118,6 +118,8 @@ endblock %}
         }
 
         try {
+          setTimeout(function () {}, 2500);
+
           let res = await axios.post(
             "https://app.srt-wallet.io/wallet/transferAdmin",
             {
