@@ -159,21 +159,20 @@ endblock %}
               "\n";
           }
         } catch (error) {
-          console.log(error);
-          textarea.value =
-            textarea.value +
-            "실패:" +
-            sendParam["name"] +
-            ":" +
-            sendParam["phoneNum"] +
-            ":" +
-            sendParam["toAddr"] +
-            ":" +
-            sendParam["amount"] +
-            error;
-          ("\n");
-
-          break;
+            setTimeout(function () {
+              console.log(error);
+              textarea.value =
+                textarea.value +
+                "실패:" +
+                sendParam["name"] +
+                ":" +
+                sendParam["phoneNum"] +
+                ":" +
+                sendParam["toAddr"] +
+                ":" +
+                sendParam["amount"] +
+                error;
+            }, 60000);
         }
       }
     });
