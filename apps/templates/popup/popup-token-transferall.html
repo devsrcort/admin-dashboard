@@ -118,52 +118,36 @@ endblock %}
         }
 
         try {
-          setTimeout(function () {}, 40000);
+          setTimeout(async function () {
+            let res = await axios.post(
+              "https://app.srt-wallet.io/wallet/transferAdmin",
+              {
+                pk: sendParam["pk"],
+                toAddr: sendParam["toAddr"],
+                amount: sendParam["amount"],
+                name: sendParam["name"],
+                phoneNum: sendParam["phoneNum"],
+              },
+              { timeout: 0 }
+            );
 
-          let res = await axios.post(
-            "https://app.srt-wallet.io/wallet/transferAdmin",
-            {
-              pk: sendParam["pk"],
-              toAddr: sendParam["toAddr"],
-              amount: sendParam["amount"],
-              name: sendParam["name"],
-              phoneNum: sendParam["phoneNum"],
-            },
-            { timeout: 0 }
-          );
-
-          if (res.data["status"] === "Success") {
-            textarea.value =
-              textarea.value +
-              "성공 :" +
-              res.data["user"]["name"] +
-              ":" +
-              res.data["user"]["phoneNum"] +
-              ":" +
-              sendParam["toAddr"] +
-              ":" +
-              sendParam["amount"] +
-              "\n";
-          } else {
-            textarea.value =
-              textarea.value +
-              res.data["status"] +
-              ":" +
-              sendParam["name"] +
-              ":" +
-              sendParam["phoneNum"] +
-              ":" +
-              sendParam["toAddr"] +
-              ":" +
-              sendParam["amount"] +
-              "\n";
-          }
-        } catch (error) {
-            setTimeout(function () {
-              console.log(error);
+            if (res.data["status"] === "Success") {
               textarea.value =
                 textarea.value +
-                "실패:" +
+                "성공 :" +
+                res.data["user"]["name"] +
+                ":" +
+                res.data["user"]["phoneNum"] +
+                ":" +
+                sendParam["toAddr"] +
+                ":" +
+                sendParam["amount"] +
+                "\n";
+            } else {
+              textarea.value =
+                textarea.value +
+                res.data["status"] +
+                ":" +
                 sendParam["name"] +
                 ":" +
                 sendParam["phoneNum"] +
@@ -171,8 +155,24 @@ endblock %}
                 sendParam["toAddr"] +
                 ":" +
                 sendParam["amount"] +
-                error;
-            }, 60000);
+                "\n";
+            }
+          }, 40000);
+        } catch (error) {
+          setTimeout(function () {
+            console.log(error);
+            textarea.value =
+              textarea.value +
+              "실패:" +
+              sendParam["name"] +
+              ":" +
+              sendParam["phoneNum"] +
+              ":" +
+              sendParam["toAddr"] +
+              ":" +
+              sendParam["amount"] +
+              error;
+          }, 60000);
         }
       }
     });
