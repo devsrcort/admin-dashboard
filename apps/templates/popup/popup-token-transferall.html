@@ -128,7 +128,7 @@ endblock %}
               phoneNum: sendParam["phoneNum"],
             },
             { timeout: 0 }
-          ).catch (error) {
+          ).catch (error => {
             setTimeout(function () {
               console.log(error);
               textarea.value =
@@ -143,7 +143,7 @@ endblock %}
                 sendParam["amount"] +
                 error;
             }, 60000);
-          };
+          });
 
           if (res.data["status"] === "Success") {
             textarea.value =
@@ -177,6 +177,5 @@ endblock %}
 
     reader.readAsText(csvFile.files[0]);
   }
-
 </script>
 {% endblock javascripts %}
