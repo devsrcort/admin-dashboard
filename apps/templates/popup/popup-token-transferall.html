@@ -78,14 +78,14 @@ endblock %}
     reader.addEventListener("loadend", async function () {
       // reader.result contains the contents of blob as a typed array
       // we insert content of file in DOM here
-      var lines = reader.result.split("\r");
-      for (var count = 0; count < lines.length; count++) {
-        var rowContent = lines[count].split(",");
+      let lines = reader.result.split("\r");
+      for (let count = 0; count < lines.length; count++) {
+        let rowContent = lines[count].split(",");
         if (count == 0 || rowContent.length > 4) {
           continue;
         }
 
-        var sendParam = {
+        let sendParam = {
           pk: fromAddr,
           toAddr: typeof rowContent[2] === "string" ? rowContent[2].trim() : "",
           name: typeof rowContent[0] === "string" ? rowContent[0].trim() : "",
@@ -117,37 +117,23 @@ endblock %}
           continue;
         }
 
-        try {
-          setTimeout(async function () {
-            let res = await axios.post(
-              "https://app.srt-wallet.io/wallet/transferAdmin",
-              {
-                pk: sendParam["pk"],
-                toAddr: sendParam["toAddr"],
-                amount: sendParam["amount"],
-                name: sendParam["name"],
-                phoneNum: sendParam["phoneNum"],
-              },
-              { timeout: 0 }
-            );
-
-            if (res.data["status"] === "Success") {
+        setTimeout(async function () {
+          let res = await axios.post(
+            "https://app.srt-wallet.io/wallet/transferAdmin",
+            {
+              pk: sendParam["pk"],
+              toAddr: sendParam["toAddr"],
+              amount: sendParam["amount"],
+              name: sendParam["name"],
+              phoneNum: sendParam["phoneNum"],
+            },
+            { timeout: 0 }
+          ).catch (error) {
+            setTimeout(function () {
+              console.log(error);
               textarea.value =
                 textarea.value +
-                "성공 :" +
-                res.data["user"]["name"] +
-                ":" +
-                res.data["user"]["phoneNum"] +
-                ":" +
-                sendParam["toAddr"] +
-                ":" +
-                sendParam["amount"] +
-                "\n";
-            } else {
-              textarea.value =
-                textarea.value +
-                res.data["status"] +
-                ":" +
+                "실패:" +
                 sendParam["name"] +
                 ":" +
                 sendParam["phoneNum"] +
@@ -155,15 +141,27 @@ endblock %}
                 sendParam["toAddr"] +
                 ":" +
                 sendParam["amount"] +
-                "\n";
-            }
-          }, 40000);
-        } catch (error) {
-          setTimeout(function () {
-            console.log(error);
+                error;
+            }, 60000);
+          };
+
+          if (res.data["status"] === "Success") {
             textarea.value =
               textarea.value +
-              "실패:" +
+              "성공 :" +
+              res.data["user"]["name"] +
+              ":" +
+              res.data["user"]["phoneNum"] +
+              ":" +
+              sendParam["toAddr"] +
+              ":" +
+              sendParam["amount"] +
+              "\n";
+          } else {
+            textarea.value =
+              textarea.value +
+              res.data["status"] +
+              ":" +
               sendParam["name"] +
               ":" +
               sendParam["phoneNum"] +
@@ -171,13 +169,14 @@ endblock %}
               sendParam["toAddr"] +
               ":" +
               sendParam["amount"] +
-              error;
-          }, 60000);
-        }
+              "\n";
+          }
+        }, 40000);
       }
     });
 
     reader.readAsText(csvFile.files[0]);
   }
+
 </script>
 {% endblock javascripts %}
