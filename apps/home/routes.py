@@ -65,6 +65,10 @@ def popupTokenTransfer():
 def popupTokenTransferAll():
     return render_template("popup/popup-token-transferall.html", segment=popupTokenTransferAll)
 
+@blueprint.route('/popupTokenRevertAll')
+def popupTokenRevertAll():
+    return render_template("popup/popup-token-revertall.html", segment=popupTokenRevertAll)
+
 # Helper - Extract current page name from request
 def get_segment(request):
 

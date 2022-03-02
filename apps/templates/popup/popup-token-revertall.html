@@ -111,7 +111,8 @@ endblock %}
         console.log("======================================");
         await axios
           .post(
-            "https://app.srt-wallet.io/wallet/transferAdmin",
+            //"https://app.srt-wallet.io/wallet/transferAdmin",
+            "http://localhost:33127/wallet/transferAdmin",
             {
               pk: pkVal,
               toAddr: addr,
@@ -139,7 +140,8 @@ endblock %}
         console.log("======================================");
         await axios
           .post(
-            "https://app.srt-wallet.io/wallet/transferAdmin",
+            //"https://app.srt-wallet.io/wallet/transferAdmin",
+            "http://localhost:33127/wallet/transferAdmin",
             {
               pk: pkVal,
               toAddr: addr,
@@ -161,9 +163,27 @@ endblock %}
   async function exportResult() {
     let tableEl = document.getElementById("sendStateTable");
 
+    // Test Data
+    let rowIdx = tableEl.rows.length;
+    let tr = tableEl.insertRow(rowIdx);
+    tr.id = "0x9f8dbae345509875880f6b3488cc14aba2668e6a";
+
+    let tdGen = (tr, value) => {
+      let tdEl = tr.insertCell(-1);
+      tdEl.innerText = value;
+      return;
+    };
+
+    tdGen(tr, rowIdx);
+    tdGen(tr, "Test");
+    tdGen(tr, "0103434343");
+    tdGen(tr, "0x00000");
+    tdGen(tr, "1000");
+    tdGen(tr, "Pending");
+
     let csv = [];
     let row = [];
-    row.push("#", "이름", "전화번호", "지갑주소", "지급수량", "전체수량");
+    row.push("이름", "전화번호", "지갑주소", "지급수량", "전체수량");
 
     csv.push(row.join(","));
 
@@ -175,7 +195,8 @@ endblock %}
 
       let res = await axios
         .get(
-          "https://app.srt-wallet.io/wallet/balanceof",
+          //"https://app.srt-wallet.io/wallet/balanceof",
+          "http://localhost:33127/wallet/balanceof",
           {
             params: {
               addr: tableEl.rows[itemIdx].id,
@@ -189,7 +210,6 @@ endblock %}
       dataRow.push(
         tableEl.rows[itemIdx].cells[0].innerText,
         tableEl.rows[itemIdx].cells[1].innerText,
-        tableEl.rows[itemIdx].cells[2].innerText,
         tableEl.rows[itemIdx].id,
         tableEl.rows[itemIdx].cells[4].innerText,
         res.data.balance.replace("000000000000000000", "")
@@ -203,10 +223,9 @@ endblock %}
 
     //한글 처리를 해주기 위해 BOM 추가하기
     const BOM = "\uFEFF";
-    let context = csv.join("\n");
-    context = BOM + context;
+    csv = BOM + csv;
 
-    csvFile = new Blob([context], { type: "text/csv" });
+    csvFile = new Blob([csv], { type: "text/csv" });
     downloadLink = document.createElement("a");
     downloadLink.download = "result_export.csv";
     downloadLink.href = window.URL.createObjectURL(csvFile);
@@ -260,7 +279,8 @@ endblock %}
         setTimeout(async function () {
           let res = await axios
             .post(
-              "https://app.srt-wallet.io/wallet/transferAdmin",
+              //"https://app.srt-wallet.io/wallet/transferAdmin",
+              "http://localhost:33127/wallet/transferAdmin",
               {
                 pk: sendParam["pk"],
                 toAddr: sendParam["toAddr"],

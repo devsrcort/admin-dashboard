@@ -10,7 +10,8 @@
 
     <div class="row mb-4">
         <div class="align-content-end">
-            <button class="btn btn-sm btn-primary" type="button" onclick="showTokenTransferAllPopup()">Send All</button>
+            <button class="btn btn-sm btn-primary" type="button" onclick="showTokenTransferAllPopup()">일괄 보내기</button>
+            <button class="btn btn-sm btn-primary" type="button" onclick="showTokenRevertAllPopup()">일괄 회수하기</button>
         </div>
     </div>
 
@@ -67,7 +68,11 @@
     }
 
     function showTokenTransferAllPopup(wallet){
-        window.open("/popupTokenTransferAll", "토큰 일괄전송", "width=800, height=700, top=10, left=10");
+        window.open("/popupTokenTransferAll", "토큰 일괄전송", "width=1200, height=700, top=10, left=10");
+    }
+
+    function showTokenRevertAllPopup(wallet){
+        window.open("/popupTokenRevertAll", "토큰 일괄회수", "width=1200, height=700, top=10, left=10");
     }
     
 </script>
