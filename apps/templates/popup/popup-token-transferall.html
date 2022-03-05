@@ -97,7 +97,6 @@ endblock %}
 
     if (res === "1") {
       const pkVal = document.getElementById("tokenValidate").value;
-      console.log(pkVal);
       cells[3].innerText = txHash;
       cells[5].innerText = status;
 
@@ -126,7 +125,6 @@ endblock %}
       }, 30000);
     } else if (res === "2") {
       const pkVal = document.getElementById("tokenValidate").value;
-      console.log(pkVal);
       cells[3].innerText = txHash;
       cells[5].innerText = status;
       setTimeout(async function () {
