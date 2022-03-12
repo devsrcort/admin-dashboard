@@ -69,6 +69,14 @@ def popupTokenTransferAll():
 def popupTokenRevertAll():
     return render_template("popup/popup-token-revertall.html", segment=popupTokenRevertAll)
 
+@blueprint.route('/popupLockWalletAll')
+def popupLockWalletAll():
+    return render_template("popup/popup-lock-wallet-all.html", segment=popupLockWalletAll)
+
+@blueprint.route('/popupTokenApproveAll')
+def popupTokenApproveAll():
+    return render_template("popup/popup-token-approveAll.html", segment=popupTokenApproveAll)
+
 # Helper - Extract current page name from request
 def get_segment(request):
 

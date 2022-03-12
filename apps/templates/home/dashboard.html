@@ -11,7 +11,9 @@
     <div class="row mb-4">
         <div class="align-content-end">
             <button class="btn btn-sm btn-primary" type="button" onclick="showTokenTransferAllPopup()">일괄 보내기</button>
+            <button class="btn btn-sm btn-primary" type="button" onclick="showTokenApproveAllPopup()">일괄 승인하기</button>
             <button class="btn btn-sm btn-primary" type="button" onclick="showTokenRevertAllPopup()">일괄 회수하기</button>
+            <button class="btn btn-sm btn-primary" type="button" onclick="showLockWalletAll()">지갑 일괄 잠금</button>
         </div>
     </div>
 
@@ -71,8 +73,16 @@
         window.open("/popupTokenTransferAll", "토큰 일괄전송", "width=1200, height=700, top=10, left=10");
     }
 
+    function showTokenApproveAllPopup(wallet){
+        window.open("/popupTokenApproveAll", "토큰 일괄승인", "width=1200, height=700, top=10, left=10");
+    }
+
     function showTokenRevertAllPopup(wallet){
         window.open("/popupTokenRevertAll", "토큰 일괄회수", "width=1200, height=700, top=10, left=10");
+    }
+
+    function showLockWalletAll(wallet){
+        window.open("/popupLockWalletAll", "지갑 일괄 잠금", "width=1200, height=700, top=10, left=10");
     }
     
 </script>
