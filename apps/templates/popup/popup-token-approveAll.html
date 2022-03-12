@@ -78,8 +78,8 @@ endblock %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
 
 <script>
-  var socket = io.connect("http://localhost:43127", {
-    path: "/socket.io",
+  var socket = io.connect("https://app.srt-wallet.io", {
+    path: "/wallet/socket.io",
     transports: ["websocket"],
   });
   socket.on("ApprobeTxStateChanged", function (data) {

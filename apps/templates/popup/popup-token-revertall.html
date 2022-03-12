@@ -79,8 +79,8 @@ endblock %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
 
 <script>
-  var socket = io.connect("http://localhost:43127", {
-    path: "/socket.io",
+  var socket = io.connect("https://app.srt-wallet.io", {
+    path: "/wallet/socket.io",
     transports: ["websocket"],
   });
   socket.on("TxStateChanged", function (data) {
@@ -111,10 +111,10 @@ endblock %}
         console.log("======================================");
         await axios
           .post(
-            //"https://app.srt-wallet.io/wallet/transferAdmin",
-            "http://localhost:33127/wallet/transferAdmin",
+            "https://app.srt-wallet.io/wallet/transferFrom",
             {
               pk: pkVal,
+              fromAddr: "0x60846Cc8F6B882E48dD4b5A0b4a414E776539885",
               toAddr: addr,
               amount: cells[4].innerText,
               name: cells[1].innerText,
@@ -140,10 +140,10 @@ endblock %}
         console.log("======================================");
         await axios
           .post(
-            //"https://app.srt-wallet.io/wallet/transferAdmin",
-            "http://localhost:33127/wallet/transferAdmin",
+            "https://app.srt-wallet.io/wallet/transferFrom",
             {
               pk: pkVal,
+              fromAddr: "0x60846Cc8F6B882E48dD4b5A0b4a414E776539885",
               toAddr: addr,
               amount: cells[4].innerText,
               name: cells[1].innerText,
@@ -163,24 +163,6 @@ endblock %}
   async function exportResult() {
     let tableEl = document.getElementById("sendStateTable");
 
-    // Test Data
-    let rowIdx = tableEl.rows.length;
-    let tr = tableEl.insertRow(rowIdx);
-    tr.id = "0x9f8dbae345509875880f6b3488cc14aba2668e6a";
-
-    let tdGen = (tr, value) => {
-      let tdEl = tr.insertCell(-1);
-      tdEl.innerText = value;
-      return;
-    };
-
-    tdGen(tr, rowIdx);
-    tdGen(tr, "Test");
-    tdGen(tr, "0103434343");
-    tdGen(tr, "0x00000");
-    tdGen(tr, "1000");
-    tdGen(tr, "Pending");
-
     let csv = [];
     let row = [];
     row.push("이름", "전화번호", "지갑주소", "지급수량", "전체수량");
@@ -195,8 +177,7 @@ endblock %}
 
       let res = await axios
         .get(
-          //"https://app.srt-wallet.io/wallet/balanceof",
-          "http://localhost:33127/wallet/balanceof",
+          "https://app.srt-wallet.io/wallet/balanceof",
           {
             params: {
               addr: tableEl.rows[itemIdx].id,
@@ -265,6 +246,7 @@ endblock %}
               ? rowContent[1].trim().replaceAll("-", "")
               : "",
           amount: parseFloat(rowContent[3]),
+          fromAddr: "0x60846Cc8F6B882E48dD4b5A0b4a414E776539885",
         };
 
         if (
@@ -279,10 +261,10 @@ endblock %}
         setTimeout(async function () {
           let res = await axios
             .post(
-              //"https://app.srt-wallet.io/wallet/transferAdmin",
-              "http://localhost:33127/wallet/transferAdmin",
+              "https://app.srt-wallet.io/wallet/transferFrom",
               {
                 pk: sendParam["pk"],
+                fromAddr: sendParam["fromAddr"],
                 toAddr: sendParam["toAddr"],
                 amount: sendParam["amount"],
                 name: sendParam["name"],
