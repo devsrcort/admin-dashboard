@@ -104,7 +104,7 @@ def load_client():
         user.phonenumer = item["phonenumer"]
         user.email = item["email"]
         user.wallet_address = item["wallet_address"]
-        user.balance = item["balance"]
+        user.balance = item["balance"].replace("000000000000000000", "")
         user.withdraw_limit = item["withdraw_limit"]
         
         users.append(user)
