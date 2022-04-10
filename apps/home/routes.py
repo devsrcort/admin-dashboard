@@ -94,7 +94,7 @@ def get_segment(request):
 
 def load_client():
     
-    API_BASE = 'https://app.dev.srt-wallet.io'
+    API_BASE = 'https://app.srt-wallet.io'
     
     res = requests.get(API_BASE + '/users/getuser?page=%d' % 1)
 
