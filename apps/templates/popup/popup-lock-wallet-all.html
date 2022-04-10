@@ -1,6 +1,6 @@
 {% extends "layouts/base-fullscreen.html" %}
 {% block title %}
-    Token Transfer {%
+    Lock wallets {%
     endblock %}
     <!-- Specific Page CSS goes HERE  -->
     {% block stylesheets %}
@@ -26,8 +26,10 @@
                                id="sendStateTable">
                             <tr>
                                 <th class="border-0 rounded-start">#</th>
-                                <th class="border-0">TxHash</th>
                                 <th class="border-0 rounded-end">Status</th>
+                                <th class="border-0">Wallet Address</th>
+                                <th class="border-0">Balance</th>
+                                <th class="border-0">TxHash</th>
                             </tr>
                             <tbody>
                                 <!-- Item -->
@@ -35,15 +37,26 @@
                         </table>
                     </div>
                     <div class="row mb-4">
-                        <div class="col-sm-4 mb-3">
-                            <button class="btn btn-primary"
-                                    type="button"
-                                    onclick="transferToken(document.getElementById('tokenValidate').value, document.getElementById('formFile'))">
-                                잠구기
-                            </button>
-                        </div>
+                      <div class="col-sm-4 mb-3">
+                        <button
+                          class="btn btn-primary"
+                          type="button"
+                          onclick="lockWallet(document.getElementById('tokenValidate').value, document.getElementById('formFile'))"
+                        >
+                          잠구기
+                        </button>
+                      </div>
                         <div class="col-sm-4 mb-3">
                             <button class="btn btn-primary" type="button" onclick="window.close()">닫기</button>
+                        </div>
+                        <div class="col-sm-4 mb-3">
+                          <button
+                            class="btn btn-primary"
+                            type="button"
+                            onclick="exportResult()"
+                          >
+                            결과 내보내기
+                          </button>
                         </div>
                     </div>
                 </div>
@@ -52,107 +65,164 @@
     {% endblock content %}
     <!-- Specific Page JS goes HERE  -->
     {% block javascripts %}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
-        <script>
-  var socket = io.connect("https://app.srt-wallet.io", {
-    path: "/wallet/socket.io",
-    transports: ["websocket"],
-  });
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <script>
+    var API_BASE_URL = "http://localhost:33127"
+    // var API_BASE_URL = "https://app.srt-wallet.io"
+    
+    var socket = io.connect(API_BASE_URL, {
+      path: "/wallet/socket.io",
+      transports: ["websocket"],
+    });
 
-  socket.on("LockTxStateChanged", function (data) {
-    console.log(data);
+    var batchLockedList = [];
 
-    let txHash = data.split(":")[1];
-    let status = data.split(":")[0];
+    socket.on("LockTxStateChanged", function (data) {
+      console.log(data);
+      const context = JSON.parse(data);
 
-    let trEl = document.getElementById(txHash);
+      let trEl = document.getElementById(context["address"]);
 
-    if (trEl === null){
-      let tableEl = document.getElementById("sendStateTable");
-      let rowIdx = tableEl.rows.length;
-      let tr = tableEl.insertRow(rowIdx);
-      tr.id = "lockWallets";
-  
-      let tdGen = (tr, value) => {
-        let tdEl = tr.insertCell(-1);
-        tdEl.innerText = value;
-        return;
-      };
-  
-      tdGen(tr, rowIdx);
-      tdGen(tr, txHash);
-      tdGen(tr, "Pending");
-    } else{
+      if (trEl === null){
+        let tableEl = document.getElementById("sendStateTable");
+        let rowIdx = tableEl.rows.length;
+        trEl = tableEl.insertRow(rowIdx);
+        trEl.id = context["address"];
+    
+        let tdGen = (tr, value) => {
+          let tdEl = tr.insertCell(-1);
+          tdEl.innerText = value;
+          return;
+        };
+    
+        tdGen(trEl, rowIdx);
+        tdGen(trEl, context["status"]);
+        tdGen(trEl, context["address"]);
+        tdGen(trEl, context["balance"].replace("000000000000000000", ""));
+        tdGen(trEl, context["txHash"]);
+      } 
+
       let cells = trEl.cells;
 
-      cells[1].innerText = txHash;
-      cells[2].innerText = status;
-    }
-  });
+      cells[1].innerText = context["status"];
 
-  async function transferToken(fromAddr, csvFile) {
-    if (fromAddr === "") {
-      alert("주소를 입력하세요.");
-      return;
-    }
-
-    if (csvFile.value === "") {
-      alert("파일경로를 입력하세요.");
-      return;
-    }
-
-    var reader = new FileReader();
-    reader.addEventListener("loadend", async function () {
-      // reader.result contains the contents of blob as a typed array
-      // we insert content of file in DOM here
-      let targetAddr = [];
-      let lines = reader.result.split("\r");
-      let roxIdx = 0;
-      for (let count = 0; count < lines.length; count++) {
-        let rowContent = lines[count].split(",");
-        if (count == 0 || rowContent.length > 1) {
-          continue;
-        }
-
-        if (
-          rowContent[0].trim() === "" ||
-          rowContent[0].trim().substring(0, 2) != "0x"
-        ) {
-          continue;
-        }
-
-        let isLocked = await axios.get("https://app.srt-wallet.io/wallet/isBlackList",{params:{addr:rowContent[0].trim()}});
+      if (context["status"] === "Ready" || context["status"] == "Retry"){      
         
-        if (isLocked.data.isLocked === false) {
-          targetAddr.push(rowContent[0].trim());
+        batchLockedList.push(context["address"]);
+
+        if (batchLockedList.length > 100){
+          setTimeout(async function () {
+            const pkVal = document.getElementById("tokenValidate").value;
+            const addreses = JSON.stringify(batchLockedList);
+            batchLockedList = [];         
+            axios.post(
+            API_BASE_URL+ "/wallet/lockWalletList",
+            {
+              pk: pkVal,
+              toAddr: addreses,
+            }).catch((error) => {
+              console.log(error);
+              });
+          }, 5000); 
+        }
+      }
+    });
+
+    async function lockWallet(fromAddr, csvFile) {
+      if (fromAddr === "") {
+        alert("주소를 입력하세요.");
+        return;
+      }
+
+      if (csvFile.value === "") {
+        alert("파일경로를 입력하세요.");
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.addEventListener("loadend", async function () {
+        // reader.result contains the contents of blob as a typed array
+        // we insert content of file in DOM here
+        let lines = reader.result.split("\r");
+        let roxIdx = 0;
+        let targetAddr = [];
           
-          if (targetAddr.length % 100 === 0 && targetAddr.length != 0) {
-            let sendParam = {
-              pk: fromAddr,
-              toAddr: targetAddr
-            };
-      
-            let res = await axios
-              .post(
-                //"https://app.srt-wallet.io/wallet/lockWalletList",
-                "http://localhost:33127/wallet/lockWalletList",
-                {
-                  pk: sendParam["pk"],
-                  toAddr: sendParam["toAddr"],
-                }
-              )
-              .catch((error) => {
-                console.log(error);
+        for (let count = 0; count < lines.length; count++) {
+          let rowContent = lines[count].split(",");
+          if (count == 0 || rowContent.length > 1) {
+            continue;
+          }
+
+          if (
+            rowContent[0].trim() === "" ||
+            rowContent[0].trim().substring(0, 2) != "0x"
+          ) {
+            continue;
+          }
+
+          targetAddr.push(rowContent[0].trim());
+
+          if (targetAddr.length == 50) {
+            await axios.post(API_BASE_URL + "/wallet/isBlackList",
+              {
+                addr: JSON.stringify(targetAddr)
               });
 
             targetAddr.splice(0, targetAddr.length-1);
           }
         }
-      }
-    });
 
-    reader.readAsText(csvFile.files[0], "euc-kr");
-  }
-        </script>
+        await axios.post(API_BASE_URL + "/wallet/isBlackList",
+        {
+          addr: JSON.stringify(targetAddr)
+        });
+      });
+
+      reader.readAsText(csvFile.files[0], "euc-kr");
+    }
+
+    async function exportResult() {
+      let tableEl = document.getElementById("sendStateTable");
+  
+      let csv = [];
+      let row = [];
+      row.push("#", "지갑주소", "잔고", "상태");
+  
+      csv.push(row.join(","));
+  
+      for (let itemIdx = 0; itemIdx < tableEl.rows.length; itemIdx++) {
+        if (itemIdx == 0) {
+          continue;
+        }
+        dataRow = [];
+  
+        dataRow.push(
+          tableEl.rows[itemIdx].cells[0].innerText,
+          tableEl.rows[itemIdx].cells[2].innerText,
+          tableEl.rows[itemIdx].cells[3].innerText,
+          tableEl.rows[itemIdx].cells[1].innerText
+        );
+  
+        csv.push(dataRow.join(","));
+      }
+  
+      let csvFile;
+      let downloadLink;
+  
+      //한글 처리를 해주기 위해 BOM 추가하기
+      const BOM = "\uFEFF";
+      let context = csv.join("\n");
+      context = BOM + context;
+  
+      csvFile = new Blob([context], { type: "text/csv" });
+      downloadLink = document.createElement("a");
+      downloadLink.download = "result_export.csv";
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+    }
+
+    </script>
     {% endblock javascripts %}

@@ -79,7 +79,11 @@ endblock %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
 
 <script>
-  var socket = io.connect("https://app.srt-wallet.io", {
+//  var API_BASE_URL = "http://localhost:33127"
+  var API_BASE_URL = "https://app.dev.srt-wallet.io";
+//  var API_BASE_URL = "https://app.srt-wallet.io";
+
+  var socket = io.connect(API_BASE_URL, {
     path: "/wallet/socket.io",
     transports: ["websocket"],
   });
@@ -110,7 +114,7 @@ endblock %}
         console.log("======================================");
         await axios
           .post(
-            "https://app.srt-wallet.io/wallet/transferAdmin",
+            API_BASE_URL + "/wallet/transferAdmin",
             {
               pk: pkVal,
               toAddr: addr,
@@ -137,7 +141,7 @@ endblock %}
         console.log("======================================");
         await axios
           .post(
-            "https://app.srt-wallet.io/wallet/transferAdmin",
+            API_BASE_URL + "/wallet/transferAdmin",
             {
               pk: pkVal,
               toAddr: addr,
@@ -255,10 +259,28 @@ endblock %}
           continue;
         }
 
+        let tableEl = document.getElementById("sendStateTable");
+        let rowIdx = tableEl.rows.length;
+        let tr = tableEl.insertRow(rowIdx);
+        tr.id = sendParam["toAddr"];
+
+        let tdGen = (tr, value) => {
+          let tdEl = tr.insertCell(-1);
+          tdEl.innerText = value;
+          return;
+        };
+
+        tdGen(tr, rowIdx);
+        tdGen(tr, sendParam["name"]);
+        tdGen(tr, sendParam["phoneNum"]);
+        tdGen(tr, "-");
+        tdGen(tr, sendParam["amount"]);
+        tdGen(tr, "Created");
+
         setTimeout(async function () {
           let res = await axios
             .post(
-              "https://app.srt-wallet.io/wallet/transferAdmin",
+              API_BASE_URL + "/wallet/transferAdmin",
               {
                 pk: sendParam["pk"],
                 toAddr: sendParam["toAddr"],
@@ -271,23 +293,6 @@ endblock %}
               console.log(error);
             });
 
-          let tableEl = document.getElementById("sendStateTable");
-          let rowIdx = tableEl.rows.length;
-          let tr = tableEl.insertRow(rowIdx);
-          tr.id = sendParam["toAddr"];
-
-          let tdGen = (tr, value) => {
-            let tdEl = tr.insertCell(-1);
-            tdEl.innerText = value;
-            return;
-          };
-
-          tdGen(tr, rowIdx);
-          tdGen(tr, sendParam["name"]);
-          tdGen(tr, sendParam["phoneNum"]);
-          tdGen(tr, "-");
-          tdGen(tr, sendParam["amount"]);
-          tdGen(tr, "Created");
         }, 15000 * count);
       }
     });
