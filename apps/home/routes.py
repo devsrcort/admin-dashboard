@@ -93,7 +93,10 @@ def get_segment(request):
         return None
 
 def load_client():
-    res = requests.get('https://app.srt-wallet.io/users/getuser?page=%d' % 1)
+    
+    API_BASE = 'https://app.dev.srt-wallet.io'
+    
+    res = requests.get(API_BASE + '/users/getuser?page=%d' % 1)
 
     users = [];
 
@@ -104,7 +107,11 @@ def load_client():
         user.phonenumer = item["phonenumer"]
         user.email = item["email"]
         user.wallet_address = item["wallet_address"]
-        user.balance = item["balance"].replace("000000000000000000", "")
+        
+        if (user.balance != None):
+            user.balance = item["balance"].replace("000000000000000000", "")
+        else:
+            user.balance = "0"
         user.withdraw_limit = item["withdraw_limit"]
         
         users.append(user)

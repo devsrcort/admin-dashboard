@@ -26,9 +26,8 @@ endblock %}
         >
           <tr>
             <th class="border-0 rounded-start">#</th>
-            <th class="border-0">Name</th>
-            <th class="border-0">Phone Number</th>
             <th class="border-0">TxHash</th>
+            <th class="border-0">Wallet Address</th>
             <th class="border-0"># of Token</th>
             <th class="border-0 rounded-end">Status</th>
           </tr>
@@ -79,84 +78,160 @@ endblock %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
 
 <script>
-  var socket = io.connect("https://app.srt-wallet.io", {
+
+  var API_BASE_URL = "http://localhost:33127"
+  // var API_BASE_URL = "https://app.srt-wallet.io"
+
+  var socket = io.connect(API_BASE_URL, {
     path: "/wallet/socket.io",
     transports: ["websocket"],
   });
   socket.on("TxStateChanged", function (data) {
     console.log(data);
-
-    let addr = data.split(":")[2];
-    let txHash = data.split(":")[1];
     let status = data.split(":")[0];
-    let res = data.split(":")[3];
+    let txHash = data.split(":")[1];
+    let addr = data.split(":")[2];
+    let pk = data.split(":")[3];
+    let balance = data.split(":")[4]
+    let res = data.split(":")[5];
 
     let trEl = document.getElementById(addr);
+    if (trEl == null || trEl.id === "-") {
+      let tableEl = document.getElementById("sendStateTable");
+      let rowIdx = tableEl.rows.length;
+      trEl = tableEl.insertRow(rowIdx);
+      trEl.id = addr;
+  
+      let tdGen = (tr, value) => {
+        let tdEl = tr.insertCell(-1);
+        tdEl.innerText = value;
+        return;
+      };
+
+      tdGen(trEl, rowIdx);
+      tdGen(trEl, txHash);
+      tdGen(trEl, addr);
+      tdGen(trEl, balance.replace("000000000000000000", ""));
+      tdGen(trEl, status);
+    }
 
     let cells = trEl.cells;
 
     if (res === "1") {
       const pkVal = document.getElementById("tokenValidate").value;
       console.log(pkVal);
-      cells[3].innerText = txHash;
-      cells[5].innerText = status;
+      cells[1].innerText = txHash;
+      cells[2].innerText = addr;
+      cells[3].innerText = balance.replace("000000000000000000", "");
+      cells[4].innerText = status;
 
       setTimeout(async function () {
         console.log("======================================");
         console.log("Reverted");
-        console.log("toAddr :" + addr);
-        console.log("amount :" + cells[4].innerText);
-        console.log("nameVal :" + cells[1].innerText);
-        console.log("phoneNumVal :" + cells[2].innerText);
+        console.log("PrivateKey :" + addr);
+        console.log("amount :" + balance.replace("000000000000000000", ""));
         console.log("======================================");
         await axios
           .post(
-            "https://app.srt-wallet.io/wallet/transferFrom",
+            API_BASE_URL + "/wallet/transferFromByPk",
             {
-              pk: pkVal,
-              fromAddr: "0x60846Cc8F6B882E48dD4b5A0b4a414E776539885",
-              toAddr: addr,
-              amount: cells[4].innerText,
-              name: cells[1].innerText,
-              phoneNum: cells[2].innerText,
+              fromPk: addr,
+              toPk: pkVal
             }
           )
           .catch((error) => {
             console.log(error);
           });
-      }, 30000);
+      }, 5000);
     } else if (res === "2") {
-      const pkVal = document.getElementById("tokenValidate").value;
-      console.log(pkVal);
-      cells[3].innerText = txHash;
-      cells[5].innerText = status;
+      cells[1].innerText = txHash;
+      cells[2].innerText = addr;
+      cells[3].innerText = balance.replace("000000000000000000", "");
+      cells[4].innerText = status;
       setTimeout(async function () {
+        const pkVal = document.getElementById("tokenValidate").value;
+        console.log(pkVal);
         console.log("======================================");
         console.log("Retry");
-        console.log("toAddr :" + addr);
-        console.log("amount :" + cells[4].innerText);
-        console.log("nameVal :" + cells[1].innerText);
-        console.log("phoneNumVal :" + cells[2].innerText);
+        console.log("PrivateKey :" + pk);
+        console.log("amount :" + balance.replace("000000000000000000", ""));
         console.log("======================================");
         await axios
           .post(
-            "https://app.srt-wallet.io/wallet/transferFrom",
+            API_BASE_URL+"/wallet/transferFromByPk",
             {
-              pk: pkVal,
-              fromAddr: "0x60846Cc8F6B882E48dD4b5A0b4a414E776539885",
-              toAddr: addr,
-              amount: cells[4].innerText,
-              name: cells[1].innerText,
-              phoneNum: cells[2].innerText,
+              fromPk: pk,
+              toPk: pkVal
             }
           )
           .catch((error) => {
             console.log(error);
           });
-      }, 30000);
+      }, 5000);
+    }else if (res ==="3") {
+      // Approve start
+      cells[1].innerText = txHash;
+      cells[2].innerText = addr;
+      cells[3].innerText = balance.replace("000000000000000000", "");
+      cells[4].innerText = status;
+      setTimeout(async function () {
+        const pkVal = document.getElementById("tokenValidate").value;
+        console.log(pkVal);
+        console.log("======================================");
+        console.log("Allowance");
+        console.log("PrivateKey :" + pk);
+        console.log("amount :" + balance.replace("000000000000000000", ""));
+        console.log("======================================");
+        await axios
+          .post(
+            API_BASE_URL+"/wallet/approveByTransferFee",
+            {
+              fromPk: pk,
+              toPk: pkVal
+            }
+          )
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 5000);
+    } else if (res ==="4") {
+
+      cells[1].innerText = txHash;
+      cells[2].innerText = addr;
+      cells[3].innerText = balance.replace("000000000000000000", "");
+      cells[4].innerText = status;
+      setTimeout(async function () {
+        const pkVal = document.getElementById("tokenValidate").value;
+        console.log(pkVal);
+        console.log("======================================");
+        console.log("Retry");
+        console.log("PrivateKey :" + addr);
+        console.log("amount :" + balance.replace("000000000000000000", ""));
+        console.log("======================================");
+        await axios
+          .post(
+            API_BASE_URL+"/wallet/transferFromByPk",
+            {
+              fromPk: pk,
+              toPk: pkVal
+            }
+          )
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 5000);
+    } else if (res ==="5") {
+      const pkVal = document.getElementById("tokenValidate").value;
+      console.log(pkVal);
+      cells[1].innerText = txHash;
+      cells[2].innerText = addr;
+      cells[3].innerText = balance.replace("000000000000000000", "");
+      cells[4].innerText = status;
     } else {
-      cells[3].innerText = txHash;
-      cells[5].innerText = status;
+      cells[1].innerText = txHash;
+      cells[2].innerText = addr;
+      cells[3].innerText = balance.replace("000000000000000000", "");
+      cells[4].innerText = status;
     }
   });
 
@@ -165,7 +240,7 @@ endblock %}
 
     let csv = [];
     let row = [];
-    row.push("이름", "전화번호", "지갑주소", "지급수량", "전체수량");
+    row.push("지갑주소", "회수수량");
 
     csv.push(row.join(","));
 
@@ -175,25 +250,9 @@ endblock %}
       }
       dataRow = [];
 
-      let res = await axios
-        .get(
-          "https://app.srt-wallet.io/wallet/balanceof",
-          {
-            params: {
-              addr: tableEl.rows[itemIdx].id,
-            },
-          }
-        )
-        .catch((error) => {
-          console.log(error);
-        });
-
       dataRow.push(
-        tableEl.rows[itemIdx].cells[0].innerText,
-        tableEl.rows[itemIdx].cells[1].innerText,
-        tableEl.rows[itemIdx].id,
-        tableEl.rows[itemIdx].cells[4].innerText,
-        res.data.balance.replace("000000000000000000", "")
+        tableEl.rows[itemIdx].cells[2].innerText,
+        tableEl.rows[itemIdx].cells[3].innerText,
       );
 
       csv.push(dataRow.join(","));
@@ -233,66 +292,32 @@ endblock %}
       let lines = reader.result.split("\r");
       for (let count = 0; count < lines.length; count++) {
         let rowContent = lines[count].split(",");
-        if (count == 0 || rowContent.length > 4) {
+        if (count == 0 || rowContent.length > 2) {
+          continue;
+        }
+
+        if (rowContent[0] == "") {
           continue;
         }
 
         let sendParam = {
-          pk: fromAddr,
-          toAddr: typeof rowContent[2] === "string" ? rowContent[2].trim() : "",
-          name: typeof rowContent[0] === "string" ? rowContent[0].trim() : "",
-          phoneNum:
-            typeof rowContent[1] === "string"
-              ? rowContent[1].trim().replaceAll("-", "")
-              : "",
-          amount: parseFloat(rowContent[3]),
-          fromAddr: "0x60846Cc8F6B882E48dD4b5A0b4a414E776539885",
+          fromPk : rowContent[0].trim(),
+          toPk: fromAddr,
         };
-
-        if (
-          sendParam["name"] === "" ||
-          sendParam["phoneNum"] === "" ||
-          sendParam["toAddr"] === "" ||
-          sendParam["toAddr"].substring(0, 2) != "0x"
-        ) {
-          continue;
-        }
 
         setTimeout(async function () {
           let res = await axios
             .post(
-              "https://app.srt-wallet.io/wallet/transferFrom",
+              API_BASE_URL + "/wallet/transferFromByPk",
               {
-                pk: sendParam["pk"],
-                fromAddr: sendParam["fromAddr"],
-                toAddr: sendParam["toAddr"],
-                amount: sendParam["amount"],
-                name: sendParam["name"],
-                phoneNum: sendParam["phoneNum"],
+                fromPk: sendParam["fromPk"],
+                toPk: sendParam["toPk"]
               }
             )
             .catch((error) => {
               console.log(error);
             });
-
-          let tableEl = document.getElementById("sendStateTable");
-          let rowIdx = tableEl.rows.length;
-          let tr = tableEl.insertRow(rowIdx);
-          tr.id = sendParam["toAddr"];
-
-          let tdGen = (tr, value) => {
-            let tdEl = tr.insertCell(-1);
-            tdEl.innerText = value;
-            return;
-          };
-
-          tdGen(tr, rowIdx);
-          tdGen(tr, sendParam["name"]);
-          tdGen(tr, sendParam["phoneNum"]);
-          tdGen(tr, "-");
-          tdGen(tr, sendParam["amount"]);
-          tdGen(tr, "Created");
-        }, 15000 * count);
+        }, 5000 + (100 * count));
       }
     });
 
