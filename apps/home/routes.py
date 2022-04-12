@@ -110,6 +110,7 @@ def load_client():
         
         if (user.balance != None):
             user.balance = item["balance"].replace("000000000000000000", "")
+            user.balance = item["balance"].replace("00000000000000000", "")
         else:
             user.balance = "0"
         user.withdraw_limit = item["withdraw_limit"]
